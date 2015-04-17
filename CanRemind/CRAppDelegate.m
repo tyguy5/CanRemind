@@ -13,6 +13,12 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    
+    UILocalNotification *localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+    if (localNotification)
+    {
+        application.applicationIconBadgeNumber = 0;
+    }
     return YES;
 }
 							
@@ -36,6 +42,33 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]){ //iOS8
+        
+        [application registerUserNotificationSettings:
+         [UIUserNotificationSettings settingsForTypes:(UIRemoteNotificationTypeBadge |
+                                                       UIRemoteNotificationTypeSound |
+                                                       UIRemoteNotificationTypeAlert)
+                                           categories:nil]];
+        [application registerForRemoteNotifications];
+        
+    } else {
+        
+        [application registerForRemoteNotificationTypes:(UIRemoteNotificationType)
+         (UIRemoteNotificationTypeBadge |
+          UIRemoteNotificationTypeSound |
+          UIRemoteNotificationTypeAlert)];
+        
+    }
+    
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+    
+    [[[UIAlertView alloc] initWithTitle:@"You were notified" message:notification.alertBody delegate:nil cancelButtonTitle:@"Okay" otherButtonTitles:nil] show];
+    
+    application.applicationIconBadgeNumber = 0;
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
